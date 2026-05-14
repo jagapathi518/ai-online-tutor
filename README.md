@@ -70,7 +70,7 @@ ai-tutor/
 ## Installation and Setup
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/ai-tutor.git  
+git clone https://github.com/itzlovi/ai-powered-personalized-tutor-system.git  
 cd ai-tutor
 ```
 ### 2. Install Dependencies
