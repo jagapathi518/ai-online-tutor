@@ -4,7 +4,7 @@ import re
 # Ensure these are downloaded
 try:
     nltk.download('punkt', quiet=True)
-except:
+except Exception:
     pass
 
 class AdaptiveLearningContentGenerator:

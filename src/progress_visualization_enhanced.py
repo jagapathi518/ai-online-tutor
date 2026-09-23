@@ -2,11 +2,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import os
+
+# Get the directory of the current script for relative paths
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_DATA_DIR = os.path.join(_SCRIPT_DIR, "data")
+_ASSETS_DIR = os.path.join(_SCRIPT_DIR, "..", "assets")
 
 class EnhancedProgressVisualizer:
     def __init__(self, student_id):
         self.student_id = student_id
-        self.progress_file = f'student_progress_{student_id}.csv'
+        self.progress_file = os.path.join(_DATA_DIR, f'student_progress_{student_id}.csv')
     
     def comprehensive_progress_analysis(self):
         """
@@ -57,7 +63,9 @@ class EnhancedProgressVisualizer:
         plt.ylabel('Number of Tests')
         
         plt.tight_layout()
-        plt.savefig(f'progress_visualizations/comprehensive_analysis_{self.student_id}.png')
+        output_dir = os.path.join(_ASSETS_DIR)
+        os.makedirs(output_dir, exist_ok=True)
+        plt.savefig(os.path.join(output_dir, f'comprehensive_analysis_{self.student_id}.png'))
         plt.close()
         
         # Generate detailed statistical report

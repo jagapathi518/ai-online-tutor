@@ -29,9 +29,12 @@ class EqualFeatureImportanceClassifier(DecisionTreeClassifier):
 def train_and_save_model():
     # Ensure the script is run from the correct directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(script_dir, "data")
+    models_dir = os.path.join(script_dir, "models")
+    os.makedirs(models_dir, exist_ok=True)
     
     # Load the dataset
-    df = pd.read_csv(os.path.join(script_dir, "intel.csv"))
+    df = pd.read_csv(os.path.join(data_dir, "intel.csv"))
     
     # Prepare features and target
     X = df[['Age', 'Last_Test_Score', 'Knowledge_Level', 'Learning_Speed']].copy()
@@ -65,13 +68,13 @@ def train_and_save_model():
     model.fit(X_train, y_train)
     
     # Save the model and encoders
-    joblib.dump(model, os.path.join(script_dir, "student_performance_model.pkl"))
+    joblib.dump(model, os.path.join(models_dir, "student_performance_model.pkl"))
     joblib.dump({
         'knowledge_encoder': le_knowledge,
         'learning_encoder': le_learning,
         'target_encoder': le_target,
         'scaler': scaler
-    }, os.path.join(script_dir, "label_encoders.pkl"))
+    }, os.path.join(models_dir, "label_encoders.pkl"))
     
     print("Model and encoders saved successfully!")
     

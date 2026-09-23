@@ -1,33 +1,55 @@
 import streamlit as st
 import joblib
+import os
+import pandas as pd
+import numpy as np
 from recommendation_engine import StudyMaterialRecommender
+from model_training import EqualFeatureImportanceClassifier
 
-# Define the missing class (Required for loading the model)
-class EqualFeatureImportanceClassifier:
-    def __init__(self):
-        pass
-
-    def predict(self, X):
-        return ["Intermediate"]  # Dummy prediction
-
-# Load the trained model
+# Load the trained model and encoders
 @st.cache_resource
-def load_model():
+def load_model_and_encoders():
     try:
-        model_path = r"C:\Users\Lovepreet\OneDrive\Documents\copy\src\models\student_performance_model.pkl"
-        model = joblib.load(model_path)
-        return model
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        models_dir = os.path.join(script_dir, "models")
+        model = joblib.load(os.path.join(models_dir, "student_performance_model.pkl"))
+        encoders = joblib.load(os.path.join(models_dir, "label_encoders.pkl"))
+        return model, encoders
     except Exception as e:
         st.error(f"Error loading model: {e}")
-        return None
+        return None, None
 
 # Function to predict the student's next level
-def predict_next_level(model, age, test_score, learning_speed, knowledge_level):
-    if model:
-        input_data = [[age, test_score, learning_speed, knowledge_level]]
-        predicted_level = model.predict(input_data)[0]
-        return predicted_level
-    return "Error: Model could not be loaded."
+def predict_next_level(model, encoders, age, test_score, learning_speed, knowledge_level):
+    if model is None or encoders is None:
+        return "Error: Model could not be loaded."
+    
+    # Get the encoders and scaler
+    knowledge_encoder = encoders['knowledge_encoder']
+    learning_encoder = encoders['learning_encoder']
+    target_encoder = encoders['target_encoder']
+    scaler = encoders['scaler']
+    
+    # Build a DataFrame matching the training format
+    input_df = pd.DataFrame([{
+        'Age': age,
+        'Last_Test_Score': test_score,
+        'Knowledge_Level': knowledge_level,
+        'Learning_Speed': learning_speed
+    }])
+    
+    # Encode categorical variables (string -> number)
+    input_df['Knowledge_Level'] = knowledge_encoder.transform(input_df['Knowledge_Level'])
+    input_df['Learning_Speed'] = learning_encoder.transform(input_df['Learning_Speed'])
+    
+    # Scale numerical features
+    input_df[['Age', 'Last_Test_Score']] = scaler.transform(input_df[['Age', 'Last_Test_Score']])
+    
+    # Predict and decode back to label
+    prediction = model.predict(input_df)
+    predicted_level = target_encoder.inverse_transform(prediction)[0]
+    
+    return predicted_level
 
 # Function to provide study material based on subject & level
 def get_study_material(subject, level):
@@ -53,8 +75,8 @@ def get_study_material(subject, level):
 def main():
     st.set_page_config(page_title="Adaptive Learning System", layout="wide")
     
-    # Load model
-    model = load_model()
+    # Load model and encoders
+    model, encoders = load_model_and_encoders()
     
     st.title("🎓 Adaptive Learning System")
     st.markdown("This system provides personalized study materials and adaptive content.")
@@ -74,7 +96,7 @@ def main():
         
         learning_speed = st.selectbox(
             "Learning Speed",
-            ["slow", "medium", "fast"],
+            ["Slow", "Medium", "Fast"],
             index=0
         )
         
@@ -91,7 +113,7 @@ def main():
             with st.spinner("Generating personalized recommendations..."):
                 try:
                     # Predict student's next learning level
-                    predicted_level = predict_next_level(model, age, test_score, learning_speed, knowledge_level)
+                    predicted_level = predict_next_level(model, encoders, age, test_score, learning_speed, knowledge_level)
                     
                     # Get study material
                     study_material = get_study_material(subject, predicted_level)
@@ -102,7 +124,7 @@ def main():
                     # Get recommendations
                     recommendations = recommender.recommend_materials(
                         subject=subject,
-                        learning_speed=learning_speed,
+                        learning_speed=learning_speed.lower(),
                         student_id="sample_student"
                     )
                     
@@ -142,7 +164,7 @@ def main():
                     
                     with col2:
                         st.header("Basic Recommendation")
-                        predicted_level = predict_next_level(model, age, test_score, learning_speed, knowledge_level)
+                        predicted_level = predict_next_level(model, encoders, age, test_score, learning_speed, knowledge_level)
                         study_material = get_study_material(subject, predicted_level)
                         st.success(f"Your predicted next study level is: **{predicted_level}**")
                         st.info(f"Recommended resource: **{study_material}**")

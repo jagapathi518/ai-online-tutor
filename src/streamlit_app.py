@@ -31,8 +31,9 @@ def load_model_and_encoders():
     
     try:
         # Load the saved model
-        model_path = os.path.join(script_dir, "student_performance_model.pkl")
-        encoders_path = os.path.join(script_dir, "label_encoders.pkl")
+        models_dir = os.path.join(script_dir, "models")
+        model_path = os.path.join(models_dir, "student_performance_model.pkl")
+        encoders_path = os.path.join(models_dir, "label_encoders.pkl")
         
         model = joblib.load(model_path)
         encoders = joblib.load(encoders_path)

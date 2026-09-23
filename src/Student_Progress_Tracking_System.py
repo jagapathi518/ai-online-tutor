@@ -1,6 +1,11 @@
 # Student_Progress_Tracking_System.py
 import pandas as pd
+import os
 from typing import Dict, Optional
+
+# Get the directory of the current script for relative paths
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+_DATA_DIR = os.path.join(_SCRIPT_DIR, "data")
 
 def get_student_progress(student_id: str, subject: str) -> Dict[str, float]:
     """
@@ -10,7 +15,7 @@ def get_student_progress(student_id: str, subject: str) -> Dict[str, float]:
     try:
         # Read progress data (create empty DataFrame if file doesn't exist)
         try:
-            progress_df = pd.read_csv("student_progress.csv")
+            progress_df = pd.read_csv(os.path.join(_DATA_DIR, "student_progress.csv"))
         except FileNotFoundError:
             return {"completion_rate": 0.0, "average_score": 0.0}
         
@@ -39,7 +44,7 @@ def update_progress(student_id: str, subject: str, score: float, completed_mater
     try:
         # Try to read existing data
         try:
-            progress_df = pd.read_csv("student_progress.csv")
+            progress_df = pd.read_csv(os.path.join(_DATA_DIR, "student_progress.csv"))
         except FileNotFoundError:
             progress_df = pd.DataFrame(columns=[
                 "student_id", "subject", "completion_rate", 
@@ -65,9 +70,9 @@ def update_progress(student_id: str, subject: str, score: float, completed_mater
                 "completed_materials": completed_material,
                 "completion_rate": 0.1  # 1/10 completed
             }
-            progress_df = progress_df.append(new_record, ignore_index=True)
+            progress_df = pd.concat([progress_df, pd.DataFrame([new_record])], ignore_index=True)
         
-        progress_df.to_csv("student_progress.csv", index=False)
+        progress_df.to_csv(os.path.join(_DATA_DIR, "student_progress.csv"), index=False)
         return True
     
     except Exception as e:

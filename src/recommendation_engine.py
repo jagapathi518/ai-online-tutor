@@ -2,7 +2,6 @@
 from typing import Dict, List, Optional, Union
 from study_materials import get_study_materials
 from Adaptive_Learning_Content_Generator import AdaptiveLearningContentGenerator
-from Student_Progress_Tracking_System import get_student_progress
 
 # At the top of recommendation_engine.py
 try:
@@ -117,17 +116,17 @@ class StudyMaterialRecommender:
         )
         
         return {
-    "student_level": level,
-    "learning_speed": learning_speed,
-    "subject": subject,
-    "recommended_materials": materials,
-    "adaptive_content": {
-        "topic": subject,  # Add this line
-        "subject": subject,
-        "complexity_level": adaptive_content['complexity_level'],
-        "content": adaptive_content['content']
-    }
-}
+            "student_level": level,
+            "learning_speed": learning_speed,
+            "subject": subject,
+            "recommended_materials": materials,
+            "adaptive_content": {
+                "topic": subject,
+                "subject": subject,
+                "complexity_level": adaptive_content['complexity_level'],
+                "content": adaptive_content['content']
+            }
+        }
     
     def batch_recommend(
         self, 

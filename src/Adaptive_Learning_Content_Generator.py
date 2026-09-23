@@ -108,15 +108,21 @@ class AdaptiveLearningContentGenerator:
     def ensure_nltk_data(self):
         """Ensure that required NLTK data is downloaded."""
         try:
-            nltk_data_path = nltk.data.find('tokenizers/punkt')
-            print(f"NLTK punkt tokenizer found at: {nltk_data_path}")
+            nltk.data.find('tokenizers/punkt_tab')
         except LookupError:
+            try:
+                nltk.data.find('tokenizers/punkt')
+            except LookupError:
+                pass
             print("Downloading required NLTK data...")
             home_dir = os.path.expanduser("~")
             nltk_data_dir = os.path.join(home_dir, "nltk_data")
             os.makedirs(nltk_data_dir, exist_ok=True)
-            nltk.download('punkt', download_dir=nltk_data_dir, quiet=True)
-            print(f"Downloaded punkt tokenizer to {nltk_data_dir}")
+            try:
+                nltk.download('punkt_tab', download_dir=nltk_data_dir, quiet=True)
+            except Exception:
+                nltk.download('punkt', download_dir=nltk_data_dir, quiet=True)
+            print(f"Downloaded NLTK tokenizer to {nltk_data_dir}")
 
     def generate_adaptive_content(self, subject, learning_speed, student_level=None):
         """

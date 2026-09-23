@@ -1,18 +1,17 @@
+import sys
+import os
 import joblib
 
-# Define the missing class
-class EqualFeatureImportanceClassifier:
-    def __init__(self):
-        pass  # Add any required initialization here
+# Add parent directory to path so we can import the model class
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from model_training import EqualFeatureImportanceClassifier
 
-    def predict(self, X):
-        pass  # Implement prediction logic here
-
-# Now load the model
-model_path = r"C:\Users\Lovepreet\OneDrive\Documents\Intel Project - Copy\student_performance_model.pkl"
+# Load the model using relative path
+script_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(script_dir, "..", "models", "student_performance_model.pkl")
 
 try:
     model = joblib.load(model_path)
-    print("✅ Model loaded successfully!")
+    print("[OK] Model loaded successfully!")
 except Exception as e:
-    print(f"❌ Error loading model: {e}")
+    print(f"[ERROR] Error loading model: {e}")
